@@ -83,4 +83,69 @@ Run test candidates with required runner
 
 ```yarn jest $(cat temp.txt)```
 
+```mermaid
+flowchart TD
+    A["Changed Files (Git Diff)"]:::input
+    B["CLI Interface"]:::cli
+    subgraph "Configuration Loader"
+        C1["Config Loader (TS)"]:::config
+        C2["Sample Configuration (JS)"]:::config
+    end
+    D["Core Library / Orchestration Module"]:::core
+    subgraph "Dependency Explorer"
+        E1["Dependency Explorer (explorer.ts)"]:::explorer
+        E2["Tree Processor (tree.ts)"]:::explorer
+        E3["Data Model (model.ts)"]:::explorer
+    end
+    subgraph "Callback Modules"
+        F1["sourceFileModifiedCb"]:::callback
+        F2["directDependencyModifiedCb"]:::callback
+        F3["transitiveDependencyModifiedCb"]:::callback
+    end
+    G["Test Accumulator"]:::accumulator
+    H["Output Writer"]:::output
+    subgraph "Tests"
+        T1["Test: findRelatedFiles.spec.ts"]:::test
+        T2["Test: tree.spec.ts"]:::test
+    end
 
+    %% Data Flow
+    A -->|"inputs"| B
+    B -->|"loads config"| C1
+    B -->|"loads config"| C2
+    B -->|"initiates"| D
+    C1 -->|"provides config"| D
+    C2 -->|"provides config"| D
+    D -->|"builds dependency graph"| E1
+    E1 -->|"uses"| E2
+    E1 -->|"uses"| E3
+    E1 -->|"triggers"| F1
+    E1 -->|"triggers"| F2
+    E1 -->|"triggers"| F3
+    F1 --> G
+    F2 --> G
+    F3 --> G
+    G -->|"writes test file list"| H
+
+    %% Click Events
+    click B "https://github.com/livingston/find-related-tests-js/blob/master/lib/cli.ts"
+    click C1 "https://github.com/livingston/find-related-tests-js/blob/master/lib/config.ts"
+    click C2 "https://github.com/livingston/find-related-tests-js/blob/master/sampleConfig.js"
+    click D "https://github.com/livingston/find-related-tests-js/blob/master/lib/index.ts"
+    click E1 "https://github.com/livingston/find-related-tests-js/blob/master/lib/explorer.ts"
+    click E2 "https://github.com/livingston/find-related-tests-js/blob/master/lib/tree.ts"
+    click E3 "https://github.com/livingston/find-related-tests-js/blob/master/lib/model.ts"
+    click T1 "https://github.com/livingston/find-related-tests-js/blob/master/test/findRelatedFiles.spec.ts"
+    click T2 "https://github.com/livingston/find-related-tests-js/blob/master/test/tree.spec.ts"
+
+    %% Styles
+    classDef input fill:#F9E79F,stroke:#333,stroke-width:2px;
+    classDef cli fill:#AED6F1,stroke:#333,stroke-width:2px;
+    classDef config fill:#F5B7B1,stroke:#333,stroke-width:2px;
+    classDef core fill:#A9DFBF,stroke:#333,stroke-width:2px;
+    classDef explorer fill:#FAD7A0,stroke:#333,stroke-width:2px;
+    classDef callback fill:#AED6F1,stroke:#333,stroke-width:2px;
+    classDef accumulator fill:#D7BDE2,stroke:#333,stroke-width:2px;
+    classDef output fill:#F1948A,stroke:#333,stroke-width:2px;
+    classDef test fill:#A3E4D7,stroke:#333,stroke-width:2px;
+```
